@@ -4,20 +4,22 @@ import { AgGauge } from 'ag-charts-vue3'
 import type { AgChartOptions } from 'ag-charts-types'
 import 'ag-charts-enterprise'
 
-const metricTotal: Ref<number> = ref(0)
-const chartValue: Ref<number> = ref(102)
-
-defineProps<{
-  title?: string
-  subtitle?: string
-  unit?: string
-  data?: object
-  min?: string
-  max?: string
-  intervals?: string
+const props = defineProps<{
+  policies?: object
+  irradiation?: object
+  min: number
+  max: number
+  intervals: Array<number>
   label?: string
   description?: string
 }>()
+
+const title: Ref<string> = ref('Your Solar Irradiation')
+const subtitle: Ref<string> = ref('Total expected solar energy this period:')
+
+const metricTotal: Ref<number> = ref(0)
+const unit: Ref<string> = ref('kWh')
+const chartValue: Ref<number> = ref(102)
 
 // Chart Options
 const options = ref<AgChartOptions>({
@@ -31,8 +33,8 @@ const options = ref<AgChartOptions>({
     },
   },
   scale: {
-    min: 90,
-    max: 110,
+    min: props.min,
+    max: props.max,
     label: {
       formatter({ value }) {
         return `${value.toFixed(0)}%`
@@ -41,7 +43,7 @@ const options = ref<AgChartOptions>({
     },
     fill: '#f5f6fa',
     interval: {
-      values: [90, 100, 110],
+      values: [...props.intervals],
     },
   },
   bar: {
@@ -65,16 +67,18 @@ const options = ref<AgChartOptions>({
 <template>
   <div class="card">
     <div class="card__header">
-      <h2 class="card__header__title">{{ title }}</h2>
-      <h3 class="card__header__subtitle">{{ subtitle }}</h3>
-      <p class="card__header__total">{{ `${metricTotal} ${unit}` }}</p>
+      <h2 v-if="title" class="card__header__title">Your Solar Irradiation</h2>
+      <h3 v-if="subtitle" class="card__header__subtitle">
+        Total expected solar energy this period:
+      </h3>
+      <p v-if="metricTotal && unit" class="card__header__total">{{ `${metricTotal} ${unit}` }}</p>
     </div>
 
     <AgGauge class="card__chart" :options="options" />
 
     <div class="card__footer">
-      <h4 class="card__footer__label">{{ label }}</h4>
-      <p class="card__footer__description">{{ description }}</p>
+      <h4 v-if="label" class="card__footer__label">{{ label }}</h4>
+      <p v-if="description" class="card__footer__description">{{ description }}</p>
     </div>
   </div>
 </template>

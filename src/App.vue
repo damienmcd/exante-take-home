@@ -1,26 +1,27 @@
 <script setup lang="ts">
 import { useFavicon } from '@vueuse/core'
-import Header from './components/Header.vue'
-import Card from './components/Card.vue'
+import AppHeader from './components/AppHeader.vue'
+import SolarIrradiationChart from './components/SolarIrradiationChart.vue'
+
+import policies from './data/policies.json'
+import irradiation from './data/irradiation.json'
 
 const icon: Ref<string> = useFavicon()
 icon.value = '/favicon.png'
 </script>
 
 <template>
-  <Header />
+  <AppHeader />
 
   <main>
     <div class="container">
       <div class="cards">
-        <Card
-          title="Your Solar Irradiation"
-          subtitle="Total expected solar energy this period:"
-          unit="kWh"
-          :data="{}"
-          min="90"
-          max="100"
-          intervals="1"
+        <SolarIrradiationChart
+          :policies="policies"
+          :irradiation="irradiation"
+          :min="90"
+          :max="110"
+          :intervals="[90, 100, 110]"
           label="Total Solar Irradiation"
           description="Since 16th August 2023, your panels have received 102% of the total expected sun."
         />
