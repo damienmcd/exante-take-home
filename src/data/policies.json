@@ -1,0 +1,13 @@
+{
+    "policies": [
+        {
+            "currency": "EUR",
+            "policyExpireDate": "2024-08-15T15:15:33",
+            "policyNumber": "EXANTE_63_11_2023",
+            "policyStartDate": "2023-08-15T15:15:33",
+            "status": "ACTIVE",
+            "triggerZoneUuid": "ca56edb7-1f8c-4713-b4c8-17f03e76b38d",
+            "uuid": "c64240be-df44-40aa-9bd2-09d114037e62"
+        }
+    ]
+}
