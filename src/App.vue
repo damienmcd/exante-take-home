@@ -22,8 +22,6 @@ icon.value = '/favicon.png'
           :min="90"
           :max="110"
           :intervals="[90, 100, 110]"
-          label="Total Solar Irradiation"
-          description="Since 16th August 2023, your panels have received 102% of the total expected sun."
         />
       </div>
     </div>

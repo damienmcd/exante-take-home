@@ -1,25 +1,43 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { AgGauge } from 'ag-charts-vue3'
 import type { AgChartOptions } from 'ag-charts-types'
 import 'ag-charts-enterprise'
 
+import { isAfter, isBefore, format, subMonths } from 'date-fns'
+
+// Props
 const props = defineProps<{
   policies?: object
   irradiation?: object
   min: number
   max: number
   intervals: Array<number>
-  label?: string
-  description?: string
 }>()
 
+// Labels
 const title: Ref<string> = ref('Your Solar Irradiation')
 const subtitle: Ref<string> = ref('Total expected solar energy this period:')
+const label: Ref<string> = ref('Total Solar Irradiation')
+const description: Ref<string> = ref(
+  'The total expected solar energy this period is the sum of the solar energy for each day in the period.',
+)
 
+// Metrics
 const metricTotal: Ref<number> = ref(0)
 const unit: Ref<string> = ref('kWh')
 const chartValue: Ref<number> = ref(102)
+
+// Dates
+const isActivePolicy: Ref<boolean> = ref(false)
+const currentDate: Ref<Date> = ref(new Date())
+const policyStartDate: Ref<Date> = ref(null)
+const policyExpireDate: Ref<Date> = ref(null)
+
+// Data
+const totalIrradiation: Ref<number> = ref(0)
+const actualValues: Ref<Array<any>> = ref([])
+const expectedValues: Ref<Array<any>> = ref([])
 
 // Chart Options
 const options = ref<AgChartOptions>({
@@ -62,14 +80,63 @@ const options = ref<AgChartOptions>({
     },
   ],
 })
+
+// Methods
+const getTotalIrradiation = () => {
+  // Get the last 6 months of data
+  const last6Months = actualValues.value.filter((value) => {
+    return isAfter(new Date(value.datetime), subMonths(new Date(policyExpireDate.value), 6))
+  })
+
+  // Get the total irradiation for the last 6 months
+  totalIrradiation.value = last6Months.reduce(
+    (acc, value) => acc + +Number.parseFloat(value.value).toFixed(4),
+    0,
+  )
+  console.log('totalIrradiation', totalIrradiation.value)
+}
+
+onMounted(() => {
+  actualValues.value = props?.irradiation?.parameters[0]?.actualValues
+  expectedValues.value = props?.irradiation?.parameters[0]?.expectedValues
+
+  // Get the policy start date
+  if (props.policies?.policies[0]?.policyStartDate) {
+    policyStartDate.value = new Date(props.policies.policies[0].policyStartDate)
+  }
+
+  // Get the policy end date
+  if (
+    actualValues.value.length > 0 &&
+    Array.isArray(actualValues.value) &&
+    props.policies?.policies[0]?.policyExpireDate
+  ) {
+    // Get the date of the last data point
+    const lastDataPoint = actualValues.value.findLast((value) => value)
+
+    // If the last data point is before the policy end date, use the last data point, otherwise use the policy end date
+    policyExpireDate.value = isBefore(
+      new Date(lastDataPoint.datetime),
+      new Date(props.policies?.policies[0]?.policyExpireDate),
+    )
+      ? new Date(lastDataPoint.datetime)
+      : new Date(props.policies?.policies[0]?.policyExpireDate)
+  }
+
+  if (props.policies?.policies[0]?.status && props.policies?.policies[0]?.status === 'ACTIVE') {
+    isActivePolicy.value = true
+  }
+
+  getTotalIrradiation()
+})
 </script>
 
 <template>
   <div class="card">
     <div class="card__header">
-      <h2 v-if="title" class="card__header__title">Your Solar Irradiation</h2>
+      <h2 v-if="title" class="card__header__title">{{ title }}</h2>
       <h3 v-if="subtitle" class="card__header__subtitle">
-        Total expected solar energy this period:
+        {{ subtitle }}
       </h3>
       <p v-if="metricTotal && unit" class="card__header__total">{{ `${metricTotal} ${unit}` }}</p>
     </div>

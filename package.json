@@ -17,6 +17,7 @@
     "@vueuse/core": "^13.1.0",
     "ag-charts-enterprise": "^11.3.0",
     "ag-charts-vue3": "^11.3.0",
+    "date-fns": "^4.1.0",
     "vue": "^3.5.13"
   },
   "devDependencies": {
