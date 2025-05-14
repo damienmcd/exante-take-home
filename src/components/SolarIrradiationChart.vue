@@ -26,7 +26,7 @@ const description: Ref<string> = ref(
 // Metrics
 const metricTotal: Ref<number> = ref(0)
 const unit: Ref<string> = ref('kWh')
-const chartValue: Ref<number> = ref(102)
+const chartPercentage: Ref<number> = ref(102)
 
 // Dates
 const isActivePolicy: Ref<boolean> = ref(false)
@@ -37,12 +37,13 @@ const policyExpireDate: Ref<Date> = ref(null)
 // Data
 const totalIrradiation: Ref<number> = ref(0)
 const actualValues: Ref<Array<any>> = ref([])
+const totalExpectedIrradiation: Ref<number> = ref(0)
 const expectedValues: Ref<Array<any>> = ref([])
 
 // Chart Options
 const options = ref<AgChartOptions>({
   type: 'radial-gauge',
-  value: chartValue.value,
+  value: chartPercentage.value,
   label: {
     fontSize: 40,
     fontFamily: 'Inter',
@@ -85,15 +86,48 @@ const options = ref<AgChartOptions>({
 const getTotalIrradiation = () => {
   // Get the last 6 months of data
   const last6Months = actualValues.value.filter((value) => {
-    return isAfter(new Date(value.datetime), subMonths(new Date(policyExpireDate.value), 6))
+    return (
+      isAfter(new Date(value.datetime), subMonths(new Date(policyExpireDate.value), 6)) &&
+      isBefore(new Date(value.datetime), new Date(policyExpireDate.value))
+    )
   })
 
   // Get the total irradiation for the last 6 months
-  totalIrradiation.value = last6Months.reduce(
-    (acc, value) => acc + +Number.parseFloat(value.value).toFixed(4),
-    0,
-  )
+  last6Months.forEach((value) => {
+    // Parse values to Numbers with 4 decimal places to avoid precision issues
+    const currentValue = Number(value.value).toFixed(4)
+    const currentTotalIrradiation = Number(totalIrradiation.value).toFixed(4)
+
+    totalIrradiation.value =
+      +Number.parseFloat(totalIrradiation.value).toFixed(4) +
+      +Number.parseFloat(currentValue).toFixed(4)
+  })
   console.log('totalIrradiation', totalIrradiation.value)
+}
+
+const getTotalExpectedIrradiation = () => {
+  // Get the 6 months of valid data
+  const policyStartMonth = new Date(policyStartDate.value).getMonth()
+  const policyEndMonth = new Date(policyExpireDate.value).getMonth()
+
+  const validExpectedMonths = expectedValues.value.filter((value) => {
+    const valueMonth = new Date(value.datetime).getMonth()
+    return valueMonth >= policyStartMonth && valueMonth <= policyEndMonth
+  })
+
+  console.log('validExpectedMonths', validExpectedMonths)
+
+  // Get the total irradiation for the last 6 months
+  validExpectedMonths.forEach((value) => {
+    // Parse values to Numbers with 4 decimal places to avoid precision issues
+    const currentValue = Number(value.value).toFixed(4)
+    const currentTotalExpectedIrradiation = Number(totalExpectedIrradiation.value).toFixed(4)
+
+    totalExpectedIrradiation.value =
+      +Number.parseFloat(totalExpectedIrradiation.value).toFixed(4) +
+      +Number.parseFloat(currentValue).toFixed(4)
+  })
+  console.log('totalExpectedIrradiation', totalExpectedIrradiation.value)
 }
 
 onMounted(() => {
@@ -128,6 +162,7 @@ onMounted(() => {
   }
 
   getTotalIrradiation()
+  getTotalExpectedIrradiation()
 })
 </script>
 
@@ -138,7 +173,9 @@ onMounted(() => {
       <h3 v-if="subtitle" class="card__header__subtitle">
         {{ subtitle }}
       </h3>
-      <p v-if="metricTotal && unit" class="card__header__total">{{ `${metricTotal} ${unit}` }}</p>
+      <p v-if="totalExpectedIrradiation && unit" class="card__header__total">
+        {{ `${Math.round(totalExpectedIrradiation).toLocaleString()} ${unit}` }}
+      </p>
     </div>
 
     <AgGauge class="card__chart" :options="options" />
