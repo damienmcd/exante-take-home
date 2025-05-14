@@ -4,7 +4,7 @@ import { AgGauge } from 'ag-charts-vue3'
 import type { AgChartOptions } from 'ag-charts-types'
 import 'ag-charts-enterprise'
 
-import { isAfter, isBefore, format, subMonths } from 'date-fns'
+import { isAfter, isBefore, subMonths, format } from 'date-fns'
 
 // Props
 const props = defineProps<{
@@ -19,18 +19,19 @@ const props = defineProps<{
 const title: Ref<string> = ref('Your Solar Irradiation')
 const subtitle: Ref<string> = ref('Total expected solar energy this period:')
 const label: Ref<string> = ref('Total Solar Irradiation')
-const description: Ref<string> = ref(
+const summary: Ref<string> = ref(
   'The total expected solar energy this period is the sum of the solar energy for each day in the period.',
+)
+const expiredPolicy: Ref<string> = ref(
+  'No active policy. Please contact your account manager to activate a new policy.',
 )
 
 // Metrics
-const metricTotal: Ref<number> = ref(0)
-const unit: Ref<string> = ref('kWh')
+const unit: Ref<string> = ref('KWh')
 const chartPercentage: Ref<number> = ref(0)
 
 // Dates
 const isActivePolicy: Ref<boolean> = ref(false)
-const currentDate: Ref<Date> = ref(new Date())
 const policyStartDate: Ref<Date> = ref(null)
 const policyExpireDate: Ref<Date> = ref(null)
 
@@ -92,6 +93,10 @@ const calculateChartPercentage = () => {
   chartPercentage.value = Math.round(
     (totalIrradiation.value / totalExpectedIrradiation.value) * 100,
   )
+}
+
+const updateSummary = () => {
+  summary.value = `Since ${format(policyStartDate.value, 'do MMMM yyyy')}, your panels have received ${chartPercentage.value}% of the total expected sun.`
 }
 
 const setChartOptions = () => {
@@ -172,6 +177,7 @@ onBeforeMount(async () => {
   await getTotalIrradiation()
   await getTotalExpectedIrradiation()
   await calculateChartPercentage()
+  await updateSummary()
   await setChartOptions()
   isLoading.value = false
 })
@@ -194,16 +200,14 @@ onBeforeMount(async () => {
 
     <div class="card__footer">
       <h4 v-if="label" class="card__footer__label">{{ label }}</h4>
-      <p v-if="description" class="card__footer__description">{{ description }}</p>
+      <p v-if="summary" class="card__footer__summary">{{ summary }}</p>
     </div>
   </div>
   <div v-else class="card card--inactive">
     <div class="card__header">
       <h2 v-if="title" class="card__header__title">{{ title }}</h2>
     </div>
-    <div class="card__chart card__chart--loading">
-      No active policy. Please contact your account manager to activate a new policy.
-    </div>
+    <div class="card__chart card__chart--loading">{{ expiredPolicy }}</div>
   </div>
 </template>
 
@@ -254,7 +258,7 @@ onBeforeMount(async () => {
     font-weight: 600;
   }
 
-  .card__footer__description {
+  .card__footer__summary {
     max-width: 400px;
   }
 }
