@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onBeforeMount } from 'vue'
 import { AgGauge } from 'ag-charts-vue3'
 import type { AgChartOptions } from 'ag-charts-types'
 import 'ag-charts-enterprise'
@@ -26,7 +26,7 @@ const description: Ref<string> = ref(
 // Metrics
 const metricTotal: Ref<number> = ref(0)
 const unit: Ref<string> = ref('kWh')
-const chartPercentage: Ref<number> = ref(102)
+const chartPercentage: Ref<number> = ref(0)
 
 // Dates
 const isActivePolicy: Ref<boolean> = ref(false)
@@ -40,47 +40,9 @@ const actualValues: Ref<Array<any>> = ref([])
 const totalExpectedIrradiation: Ref<number> = ref(0)
 const expectedValues: Ref<Array<any>> = ref([])
 
-// Chart Options
-const options = ref<AgChartOptions>({
-  type: 'radial-gauge',
-  value: chartPercentage.value,
-  label: {
-    fontSize: 40,
-    fontFamily: 'Inter',
-    formatter({ value }) {
-      return `${value.toFixed(0)}%`
-    },
-  },
-  scale: {
-    min: props.min,
-    max: props.max,
-    label: {
-      formatter({ value }) {
-        return `${value.toFixed(0)}%`
-      },
-      avoidCollisions: true,
-    },
-    fill: '#f5f6fa',
-    interval: {
-      values: [...props.intervals],
-    },
-  },
-  bar: {
-    fill: '#1172ba',
-  },
-  targets: [
-    {
-      value: 100,
-      shape: 'line',
-      placement: 'middle',
-      fill: 'black',
-      size: 32,
-      stroke: '#222222',
-      strokeWidth: 3,
-      rotation: 90,
-    },
-  ],
-})
+// Controls
+const chartOptions: Ref<AgChartOptions> = ref({})
+const isLoading: Ref<boolean> = ref(true)
 
 // Methods
 const getTotalIrradiation = () => {
@@ -102,7 +64,6 @@ const getTotalIrradiation = () => {
       +Number.parseFloat(totalIrradiation.value).toFixed(4) +
       +Number.parseFloat(currentValue).toFixed(4)
   })
-  console.log('totalIrradiation', totalIrradiation.value)
 }
 
 const getTotalExpectedIrradiation = () => {
@@ -115,8 +76,6 @@ const getTotalExpectedIrradiation = () => {
     return valueMonth >= policyStartMonth && valueMonth <= policyEndMonth
   })
 
-  console.log('validExpectedMonths', validExpectedMonths)
-
   // Get the total irradiation for the last 6 months
   validExpectedMonths.forEach((value) => {
     // Parse values to Numbers with 4 decimal places to avoid precision issues
@@ -127,10 +86,60 @@ const getTotalExpectedIrradiation = () => {
       +Number.parseFloat(totalExpectedIrradiation.value).toFixed(4) +
       +Number.parseFloat(currentValue).toFixed(4)
   })
-  console.log('totalExpectedIrradiation', totalExpectedIrradiation.value)
 }
 
-onMounted(() => {
+const calculateChartPercentage = () => {
+  chartPercentage.value = Math.round(
+    (totalIrradiation.value / totalExpectedIrradiation.value) * 100,
+  )
+  console.log('chartPercentage', chartPercentage.value)
+}
+
+const setChartOptions = () => {
+  // Chart Options
+  chartOptions.value = {
+    type: 'radial-gauge',
+    value: chartPercentage.value,
+    label: {
+      fontSize: 40,
+      fontFamily: 'Inter',
+      formatter({ value }) {
+        return `${value.toFixed(0)}%`
+      },
+    },
+    scale: {
+      min: props.min,
+      max: props.max,
+      label: {
+        formatter({ value }) {
+          return `${value.toFixed(0)}%`
+        },
+        avoidCollisions: true,
+      },
+      fill: '#f5f6fa',
+      interval: {
+        values: [...props.intervals],
+      },
+    },
+    bar: {
+      fill: chartPercentage.value >= 100 ? '#1172ba' : '#ff0000',
+    },
+    targets: [
+      {
+        value: 100,
+        shape: 'line',
+        placement: 'middle',
+        fill: 'black',
+        size: 32,
+        stroke: '#222222',
+        strokeWidth: 3,
+        rotation: 90,
+      },
+    ],
+  }
+}
+
+onBeforeMount(async () => {
   actualValues.value = props?.irradiation?.parameters[0]?.actualValues
   expectedValues.value = props?.irradiation?.parameters[0]?.expectedValues
 
@@ -161,13 +170,16 @@ onMounted(() => {
     isActivePolicy.value = true
   }
 
-  getTotalIrradiation()
-  getTotalExpectedIrradiation()
+  await getTotalIrradiation()
+  await getTotalExpectedIrradiation()
+  await calculateChartPercentage()
+  await setChartOptions()
+  isLoading.value = false
 })
 </script>
 
 <template>
-  <div class="card">
+  <div v-if="isActivePolicy" class="card">
     <div class="card__header">
       <h2 v-if="title" class="card__header__title">{{ title }}</h2>
       <h3 v-if="subtitle" class="card__header__subtitle">
@@ -178,11 +190,20 @@ onMounted(() => {
       </p>
     </div>
 
-    <AgGauge class="card__chart" :options="options" />
+    <AgGauge v-if="!isLoading" class="card__chart" :options="chartOptions" />
+    <div v-else class="card__chart card__chart--loading">Loading Data</div>
 
     <div class="card__footer">
       <h4 v-if="label" class="card__footer__label">{{ label }}</h4>
       <p v-if="description" class="card__footer__description">{{ description }}</p>
+    </div>
+  </div>
+  <div v-else class="card card--inactive">
+    <div class="card__header">
+      <h2 v-if="title" class="card__header__title">{{ title }}</h2>
+    </div>
+    <div class="card__chart card__chart--loading">
+      No active policy. Please contact your account manager to activate a new policy.
     </div>
   </div>
 </template>
@@ -242,6 +263,12 @@ onMounted(() => {
 .card__chart {
   width: 100%;
   height: 200px;
+}
+
+.card__chart--loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 @media (min-width: 768px) {

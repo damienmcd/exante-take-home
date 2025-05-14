@@ -19,9 +19,9 @@ icon.value = '/favicon.png'
         <SolarIrradiationChart
           :policies="policies"
           :irradiation="irradiation"
-          :min="90"
-          :max="110"
-          :intervals="[90, 100, 110]"
+          :min="80"
+          :max="120"
+          :intervals="[80, 100, 120]"
         />
       </div>
     </div>
