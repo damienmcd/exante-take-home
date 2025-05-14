@@ -30,6 +30,8 @@ npm install
 
 ### Compile and Hot-Reload for Development
 
+Opens app at http://localhost:5173/ by default
+
 ```sh
 npm run dev
 ```
