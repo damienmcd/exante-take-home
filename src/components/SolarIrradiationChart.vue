@@ -92,7 +92,6 @@ const calculateChartPercentage = () => {
   chartPercentage.value = Math.round(
     (totalIrradiation.value / totalExpectedIrradiation.value) * 100,
   )
-  console.log('chartPercentage', chartPercentage.value)
 }
 
 const setChartOptions = () => {
