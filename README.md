@@ -1,5 +1,9 @@
 # Exante Take-home Assignment
 
+- This repository is the solution presented by Damien McDonnell (https://github.com/damienmcd / damienmcd@gmail.com) for the Frontend Technical Interview at Exante.
+- The solution is implemented using Vue 3 and Vite.
+- The chart library used in this solution is [AG Charts](https://www.ag-grid.com/charts/) Enterprise. The Enterprise version is available for usage on localhost for testing purposes.
+
 ## Assumptions
 
 - The last array element in the irradiation actualValues should be used as the latest date for calculations, unless the policy expiry date has passed.
