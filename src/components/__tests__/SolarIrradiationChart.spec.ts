@@ -83,7 +83,7 @@ describe('SolarIrradiationChart for ACTIVE Policy', () => {
   })
 })
 
-describe('SolarIrradiationChart for ACTIVE Policy', () => {
+describe('SolarIrradiationChart for INACTIVE Policy', () => {
   it('displays the title and subtitle', () => {
     const wrapper = mount(SolarIrradiationChart, {
       props: {

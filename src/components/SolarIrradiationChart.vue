@@ -37,9 +37,9 @@ const policyExpireDate: Ref<Date> = ref(null)
 
 // Data
 const totalIrradiation: Ref<number> = ref(0)
-const actualValues: Ref<Array<any>> = ref([])
+const actualValues: Ref<Array<object>> = ref([])
 const totalExpectedIrradiation: Ref<number> = ref(0)
-const expectedValues: Ref<Array<any>> = ref([])
+const expectedValues: Ref<Array<object>> = ref([])
 
 // Controls
 const chartOptions: Ref<AgChartOptions> = ref({})
@@ -59,7 +59,6 @@ const getTotalIrradiation = () => {
   last6Months.forEach((value) => {
     // Parse values to Numbers with 4 decimal places to avoid precision issues
     const currentValue = Number(value.value).toFixed(4)
-    const currentTotalIrradiation = Number(totalIrradiation.value).toFixed(4)
 
     totalIrradiation.value =
       +Number.parseFloat(totalIrradiation.value).toFixed(4) +
@@ -81,7 +80,6 @@ const getTotalExpectedIrradiation = () => {
   validExpectedMonths.forEach((value) => {
     // Parse values to Numbers with 4 decimal places to avoid precision issues
     const currentValue = Number(value.value).toFixed(4)
-    const currentTotalExpectedIrradiation = Number(totalExpectedIrradiation.value).toFixed(4)
 
     totalExpectedIrradiation.value =
       +Number.parseFloat(totalExpectedIrradiation.value).toFixed(4) +
