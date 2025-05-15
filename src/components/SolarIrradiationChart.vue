@@ -13,6 +13,7 @@ const props = defineProps<{
   min: number
   max: number
   intervals: Array<number>
+  threshold: number
 }>()
 
 // Labels
@@ -124,11 +125,11 @@ const setChartOptions = () => {
       },
     },
     bar: {
-      fill: chartPercentage.value >= 100 ? '#1172ba' : '#ff0000',
+      fill: chartPercentage.value >= props.threshold ? '#1172ba' : '#ff0000',
     },
     targets: [
       {
-        value: 100,
+        value: props.threshold,
         shape: 'line',
         placement: 'middle',
         fill: 'black',

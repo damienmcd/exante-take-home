@@ -18,6 +18,7 @@ describe('SolarIrradiationChart for ACTIVE Policy', () => {
         min: 80,
         max: 120,
         intervals: [80, 100, 120],
+        threshold: 100,
       },
     })
     expect(wrapper.text()).toContain('Your Solar Irradiation')
@@ -32,6 +33,7 @@ describe('SolarIrradiationChart for ACTIVE Policy', () => {
         min: 80,
         max: 120,
         intervals: [80, 100, 120],
+        threshold: 100,
       },
     })
 
@@ -47,6 +49,7 @@ describe('SolarIrradiationChart for ACTIVE Policy', () => {
         min: 80,
         max: 120,
         intervals: [80, 100, 120],
+        threshold: 100,
       },
     })
 
@@ -64,6 +67,7 @@ describe('SolarIrradiationChart for ACTIVE Policy', () => {
         min: 80,
         max: 120,
         intervals: [80, 100, 120],
+        threshold: 100,
       },
     })
     expect(wrapper.find('.card__chart').exists()).toBe(true)
@@ -77,6 +81,7 @@ describe('SolarIrradiationChart for ACTIVE Policy', () => {
         min: 80,
         max: 120,
         intervals: [80, 100, 120],
+        threshold: 100,
       },
     })
     expect(wrapper.text()).toContain('Loading Data')
@@ -92,6 +97,7 @@ describe('SolarIrradiationChart for INACTIVE Policy', () => {
         min: 90,
         max: 110,
         intervals: [90, 100, 110],
+        threshold: 100,
       },
     })
     expect(wrapper.text()).toContain('Your Solar Irradiation')
@@ -106,6 +112,7 @@ describe('SolarIrradiationChart for INACTIVE Policy', () => {
         min: 90,
         max: 110,
         intervals: [90, 100, 110],
+        threshold: 100,
       },
     })
 
@@ -121,6 +128,7 @@ describe('SolarIrradiationChart for INACTIVE Policy', () => {
         min: 90,
         max: 110,
         intervals: [90, 100, 110],
+        threshold: 100,
       },
     })
 
@@ -138,6 +146,7 @@ describe('SolarIrradiationChart for INACTIVE Policy', () => {
         min: 90,
         max: 110,
         intervals: [90, 100, 110],
+        threshold: 100,
       },
     })
     expect(wrapper.find('.card__chart').exists()).toBe(true)
@@ -151,6 +160,7 @@ describe('SolarIrradiationChart for INACTIVE Policy', () => {
         min: 90,
         max: 110,
         intervals: [90, 100, 110],
+        threshold: 100,
       },
     })
     expect(wrapper.text()).not.toContain('Loading Data')
@@ -164,6 +174,7 @@ describe('SolarIrradiationChart for INACTIVE Policy', () => {
         min: 90,
         max: 110,
         intervals: [90, 100, 110],
+        threshold: 100,
       },
     })
     expect(wrapper.text()).toContain(
@@ -181,6 +192,7 @@ describe('SolarIrradiationChart for Irradiation above 100%', () => {
         min: 90,
         max: 110,
         intervals: [90, 100, 110],
+        threshold: 100,
       },
     })
     expect(wrapper.text()).toContain('Your Solar Irradiation')
@@ -195,6 +207,7 @@ describe('SolarIrradiationChart for Irradiation above 100%', () => {
         min: 90,
         max: 110,
         intervals: [90, 100, 110],
+        threshold: 100,
       },
     })
 
@@ -212,6 +225,7 @@ describe('SolarIrradiationChart for Irradiation above 100%', () => {
         min: 90,
         max: 110,
         intervals: [90, 100, 110],
+        threshold: 100,
       },
     })
     expect(wrapper.find('.card__chart').exists()).toBe(true)
