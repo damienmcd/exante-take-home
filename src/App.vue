@@ -22,6 +22,7 @@ icon.value = '/favicon.png'
           :min="80"
           :max="120"
           :intervals="[80, 100, 120]"
+          :threshold="100"
         />
       </div>
     </div>
